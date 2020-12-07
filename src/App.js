@@ -10,23 +10,27 @@ class App extends Component {
     isLoading: false
   }
 
-   async componentDidMount() {
+  searchUsers = async text =>{
+    
     this.setState({ isLoading: true});
 
-    const res = await fetch(`https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIEND_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIEND_SECRET}`);
+    const res = await fetch(`https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIEND_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIEND_SECRET}`);
     const data = await res.json();
     
-    this.setState({ users: data});
-    this.setState({ isLoading: false})
+    this.setState({ users: data.items, isLoading: false});
   }
+  
+  clearUsers = () => this.setState({ users: [], isLoading: false});
+
 
   render() {
+    const { users, isLoading } = this.state;
     return (
       <div className="App">
         <Navbar />
         <div className="container">
-          <Search />
-          <Users users={this.state.users} isLoading={this.state.isLoading}/>
+          <Search searchUsers={this.searchUsers} clearUsers={this.clearUsers} showClear={users.length > 0 ? true: false}/>
+          <Users users={users} isLoading={isLoading}/>
         </div>
       </div>
     );
